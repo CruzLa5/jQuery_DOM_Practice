@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Movie Ratings App</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    .movie-item {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Movie Ratings App</h1>
+  <form id="movieForm">
+    <label for="title">Title: </label>
+    <input type="text" id="title" required>
+    <label for="rating">Rating: </label>
+    <input type="number" id="rating" min="1" max="10" required>
+    <button type="submit">Add Movie</button>
+  </form>
+  <div>
+    <label for="sortType">Sort by:</label>
+    <select id="sortType">
+      <option value="title-asc">Title (A-Z)</option>
+      <option value="title-desc">Title (Z-A)</option>
+      <option value="rating-asc">Rating (Lowest to Highest)</option>
+      <option value="rating-desc">Rating (Highest to Lowest)</option>
+    </select>
+  </div>
+  <div id="movieList"></div>
+
+  <script>
+    $(document).ready(function() {
+      const movies = [];
+
+      // Handle form submission
+      $('#movieForm').submit(function(event) {
+        event.preventDefault();
+        
+        let title = $('#title').val();
+        let rating = parseFloat($('#rating').val());
+        
+        if (title.length < 2) {
+          alert('Title must have at least 2 characters.');
+          return;
+        }
+        
+        movies.push({ title: title, rating: rating });
+        
+        updateMovieList();
+        
+        $('#title').val('');
+        $('#rating').val('');
+      });
+
+      // Handle remove button click
+      $('#movieList').on('click', '.remove-btn', function() {
+        const index = $(this).data('index');
+        movies.splice(index, 1);
+        updateMovieList();
+      });
+
+      // Handle sorting
+      $('#sortType').change(function() {
+        updateMovieList();
+      });
+
+      function updateMovieList() {
+        let sortType = $('#sortType').val();
+        
+        if (sortType === 'title-asc') {
+          movies.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (sortType === 'title-desc') {
+          movies.sort((a, b) => b.title.localeCompare(a.title));
+        } else if (sortType === 'rating-asc') {
+          movies.sort((a, b) => a.rating - b.rating);
+        } else if (sortType === 'rating-desc') {
+          movies.sort((a, b) => b.rating - a.rating);
+        }
+
+        $('#movieList').empty();
+        for (var i = 0; i < movies.length; i++) {
+          const movieItem = $('<div class="movie-item"><strong>Title:</strong> ' + movies[i].title + ', <strong>Rating:</strong> ' + movies[i].rating + '</div>');
+          const removeButton = $('<button class="remove-btn" data-index="' + i + '">Remove</button>');
+          movieItem.append(removeButton);
+          $('#movieList').append(movieItem);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
